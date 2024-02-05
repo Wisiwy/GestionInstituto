@@ -43,7 +43,7 @@ Este archivo tiene los metodos *up* y *down*. En el primero especificamos el esq
 ```php
     public function up(): void
     {
-        Schema::create('profesores', function (Blueprint $table) {
+        Schema::create('alumnos', function (Blueprint $table) {
             $table->id();
             $table->string("nombre");
             $table->string("email");
@@ -66,6 +66,9 @@ class Alumno extends Model{
 
 ## 3. Fabricar valores para rellenar tabla *Alumnos*
 ### 3.1 Modificar *AlumnoFactory*
+Factory es la fábrica donde indicamos las reglas para generar nuestros nuevos registros como los construiremos.
+//TODO terminar de pasar archivo de Drive. 
+En este archivo se espedifin
 
 ### 3.2 Generar registros en *AlumnoSeeder*
 
