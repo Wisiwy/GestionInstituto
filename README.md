@@ -1,66 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CRUD en Laravel
+Vamos a realizar un CRUD para el modelo Alumnos.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Crear (Create), Leer (Read), Actualizar (Update) y Eliminar (Delete). Estas acciones son esenciales para gestionar datos en aplicaciones y sistemas informáticos.
 
-## About Laravel
+Laravel usa la libreria Eloquent ORM 
+> ORM es un marco de trabajo o libreria que nos provee comunicacion entre una base de datos y un lenguaje de programacion.
+> Eloquen permite intractuar con la BD. Crea la clase para crear CRUD
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
+## 1. Generar ecosistema CRUD para Alumno
+Comando para creación modelo Alumno:
+``` bash 
+php artisan make:model Alumno --all
+```
+<details><summary>Ayuda *make:model*</summary>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+``` bash 
+php artisan help make:model 
+```
+</details>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Archivos creados
+- **Modelo**: Clase que permite interactuar con una tabla concreta de la Base de Datos a través de nuestra aplicacion.
+- **Controlador**: clase con los métodos que se ejecutarán dependiendo de la situación. 
+- **Migrate**: Clase anónima que sirve para vrear o eliminar elementos DDL. Up or Down.
+- **Factory**: Clase para fabricar el tipo de registros que metemos en la tabla. 
+- **Seeder**: Puebla la BD con los valores fabricados con el modelo *Factory*.
+---
 
-## Learning Laravel
+## 2. Creacion tabla *Alumnos* y relacionarla con el *Modelo*
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 2.1 Crear ESQUEMA tabla Alumnos
+En la generación del modelo  Alumnos se el archivo:
+>    _**'nombreProyecdto'/database/migrations/_create_alumnos_table.phap**_
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Este archivo tiene los metodos *up* y *down*. En el primero especificamos el esquema con la clase **Schema::create**.
 
-## Laravel Sponsors
+<details>
+  <summary> <span style="font-size:large; color: dodgerblue">Ver Codigo</span>  </summary>
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```php
+    public function up(): void
+    {
+        Schema::create('profesores', function (Blueprint $table) {
+            $table->id();
+            $table->string("nombre");
+            $table->string("email");
+            $table->string("dir");
+            $table->string("dni");
+            $table->timestamps();
+        });
+    }
+```
+</details> <!-- Código esquema  -->
 
-### Premium Partners
+### 2.2 Desde MODELO llamar a la tabla creada. 
+Especificar la tabla de la BD a la que esta asociada el modelo:
+```php
+class Alumno extends Model{
+    use HasFactory;
+    protected $table="alumnos";
+}
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 3. Fabricar valores para rellenar tabla *Alumnos*
+### 3.1 Modificar *AlumnoFactory*
 
-## Contributing
+### 3.2 Generar registros en *AlumnoSeeder*
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Llamamos al seeder de Alumno desde *databaseSeeders*
+```php
+    $this->call([
+        AlumnoSeeder::class,
+        ProfesorSeeder::class    
+    ])
+}
+```
+2. Llamamos a al *factory* de Alumno y  especificamos cuantos registros: 
+```php
+class AlumnoSeeder extends Seeder{
+    public function run (): void {
+        Alumno::factory()->count(100);
+    }
+}
+```
 
-## Code of Conduct
+### Otros conceptos
+- **Policy**: Define permisos. 
+- **Request**: Validadcion de susuarios.
+- **Routes**: Definier las redirecciones.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
+### Comandos interesantes
 
-## Security Vulnerabilities
+Recoger todos registros de una tabla (*select * from alumnos*). Por eloquent 
+``` php
+$alumnos = Alumno::all();
+```
+---
+### API, SOAP y REST 
+<details>
+  <summary>Click  to expand </summary>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### API
+    Representa un conjunto de reglas y herramientas que permiten la interacción entre diferentes software.
+    Puede utilizar tanto REST como SOAP como protocolos de comunicación.
+### REST (Transferencia de Estado Representacional)
+      Se basa en un conjunto de principios arquitectónicos que utiliza el protocolo HTTP para realizar operaciones CRUD
+    (Crear, Leer, Actualizar, Eliminar) en recursos. Especifica recomendaciones, como el uso de los métodos HTTP PUT 
+    para actualizar todos los datos y PATCH para actualizar solo un tipo de datos en una solicitud al servidor.
+### SOAP (Protocolo Simple de Acceso a Objeto)
+       Es un protocolo de comunicación definido por estándares, como el W3C, que utiliza XML para la transmisión de 
+    mensajes entre aplicaciones.
+    A diferencia de REST, que utiliza principalmente HTTP, SOAP puede trabajar sobre otros protocolos de red.
+</details>
