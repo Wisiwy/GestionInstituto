@@ -9,27 +9,32 @@ Laravel usa la libreria Eloquent ORM
 
 ---
 ## 1. Generar ecosistema CRUD para Alumno
-Comando para creación modelo Alumno:
+Comando para creación modelo Alumno (*model, factory, seed, migration*):
 ``` bash 
 php artisan make:model Alumno --all
 ```
-<details><summary>Ayuda *make:model*</summary>
+<details><summary>Ayuda *make:model* uy *make:seed*</summary>
 
+#### Crear unicamente modelo
 ``` bash 
-php artisan help make:model 
+php artisan help make:model Alumno
 ```
+#### Crear unicamente seed
+``` bash 
+php artisan make:seed Alumno
+```
+
 </details>
 
 ### Archivos creados
-- **Modelo**: Clase que permite interactuar con una tabla concreta de la Base de Datos a través de nuestra aplicacion.
+- *app*/**Models**: Clase que permite interactuar con una tabla concreta de la Base de Datos a través de nuestra aplicacion.
 - **Controlador**: clase con los métodos que se ejecutarán dependiendo de la situación. 
-- **Migrate**: Clase anónima que sirve para vrear o eliminar elementos DDL. Up or Down.
+- *database*/**Migration**: Clase anónima abstracta que sirve para crear o eliminar elementos DDL. Dos métodos: Up or Down. Ejecutar DDL. 
 - **Factory**: Clase para fabricar el tipo de registros que metemos en la tabla. 
 - **Seeder**: Puebla la BD con los valores fabricados con el modelo *Factory*.
 ---
 
 ## 2. Creacion tabla *Alumnos* y relacionarla con el *Modelo*
-
 
 ### 2.1 Crear ESQUEMA tabla Alumnos
 En la generación del modelo  Alumnos se el archivo:
@@ -63,14 +68,41 @@ class Alumno extends Model{
     protected $table="alumnos";
 }
 ```
-
+---
 ## 3. Fabricar valores para rellenar tabla *Alumnos*
 ### 3.1 Modificar *AlumnoFactory*
 Factory es la fábrica donde indicamos las reglas para generar nuestros nuevos registros como los construiremos.
 //TODO terminar de pasar archivo de Drive. 
-En este archivo se espedifin
+En este clase se especifica como se construira los registros:
+```php
+public function definition(): array
+    {
+        return [
+            "nombre"=>fake()->name(),
+            "dir"=>fake()->address(),
+            "email"=>fake()->email(),
+            "dni"=>$this->dni()
+        ];
+    }
+```
+<details>
+  <summary> <span style="font-size:large; color: dodgerblue">Funcion dni()</span>  </summary>
 
-### 3.2 Generar registros en *AlumnoSeeder*
+```php
+ private function dni(){
+        $letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+        $num_dni = fake()->randomNumber(8,true);
+        $num_dni= $num_dni<0? -($num_dni): $num_dni;
+        info("número generao $num_dni");
+        $letra = $letras[$num_dni%23];
+        $dni = "$num_dni-$letra";
+        return $dni;
+    }
+```
+</details>
+
+
+### 3.2 Generar registros en *AlumnoSeeder* 
 
 1. Llamamos al seeder de Alumno desde *databaseSeeders*
 ```php
@@ -81,13 +113,44 @@ En este archivo se espedifin
 }
 ```
 2. Llamamos a al *factory* de Alumno y  especificamos cuantos registros: 
+
 ```php
 class AlumnoSeeder extends Seeder{
     public function run (): void {
-        Alumno::factory()->count(100);
+        Alumno::factory()->count(100)->create();
     }
 }
 ```
+- *create()* &rarr; Inserta los valores de factory en la tabla *Alumno* de la BD. 
+#### <span style = "color:green;"> Ejecución seeders por artisan </span>
+```bash
+php artisan db:seeder
+```
+ Ejecuta los seedes de *DatabaseSeeder.php* se llaman los seeders de los diferentes modelos.
+
+---
+## 4. Migración
+>  Clase abstracta con dos métodos up y down (crear y elimniar). Sirve para ejecutar DDL
+
+```bash
+php artisan migrate:fresh --seed
+```
+<details>
+  <summary> <span style="font-size:small ; color: #267700">Explicación comando</span>  </summary>
+
+- ***fresh*** &rarr; Borra todo y vuelve a crear. 
+- ***--seed*** &rarr; Puebla la base de datos
+
+
+</details>
+
+
+
+
+
+---
+
+---
 
 ### Otros conceptos
 - **Policy**: Define permisos. 
